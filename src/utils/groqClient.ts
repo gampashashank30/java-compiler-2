@@ -4,8 +4,13 @@ export const callGroqAPI = async (messages: any[]) => {
     return {
         status: "OPTIMAL",
         message: "AI analysis mock response.",
-        summary: "Code looks good.",
-        explanation: "This is a placeholder response from the reconstructed project.",
-        root_cause: []
+        summary: "Java code looks good.",
+        explanation: "This is a placeholder response for the Java Compiler.",
+        root_cause: [],
+        quiz: [], // Add empty quiz/study plan structures to avoid crashing TutorPage
+        study_plan: [],
+        prerequisite_topics: [],
+        practice_exercises: [],
+        resources: []
     };
 };

@@ -8,7 +8,7 @@ export const Hero = () => {
         <section className="pt-32 pb-20 px-6 relative overflow-hidden">
             <div className="container mx-auto text-center relative z-10">
                 <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
-                    Master C Programming<br />with AI Guidance
+                    Master Java Programming<br />with AI Guidance
                 </h1>
                 <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
                     The first compiler that understands your mistakes. Get instant, human-like explanations for every error.

@@ -1,11 +1,10 @@
 
-import React from 'react';
 import { Hero } from '@/components/landing/Hero';
 import { Navbar } from '@/components/landing/Navbar';
 import { SmartCompiler } from '@/components/landing/SmartCompiler';
 import { StudyAssistant } from '@/components/landing/StudyAssistant';
 import { MistakeTracker } from '@/components/landing/MistakeTracker';
-import { Converter } from '@/components/landing/Converter';
+import { Converter } from '@/components/landing/Converter'; // No text changes here as most text is in components. I'll skip this tool call for LandingPage and focus on components.
 import { History } from '@/components/landing/History';
 import { Footer } from '@/components/landing/Footer';
 import { Link } from 'react-router-dom';

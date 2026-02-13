@@ -15,17 +15,17 @@ import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
 
-const defaultCode = `#include <stdio.h>
-
-int main() {
-    int a = 10, b = 20, c = 30;
-    int avg = a + b + c / 3;
-
-    printf("Average = %d\\n", avg);
-    return 0;
+const defaultCode = `public class Main {
+    public static void main(String[] args) {
+        int a = 10;
+        int b = 20;
+        int sum = a + b;
+        
+        System.out.println("Sum = " + sum);
+    }
 }`;
 
-// Reusable Lexical Scan Function
+// Reusable Lexical Scan Function for Java
 const lexicalScan = (sourceCode: string) => {
     const lines = sourceCode.split('\n');
     const errors: string[] = [];
@@ -35,7 +35,7 @@ const lexicalScan = (sourceCode: string) => {
     let braceCount = 0; // {}
     let bracketCount = 0; // []
 
-    const keywords = ["int", "float", "double", "char", "void", "return", "if", "else", "for", "while", "do", "switch", "case", "default", "break", "continue", "struct", "typedef", "printf", "scanf", "include"];
+    const keywords = ["public", "class", "static", "void", "main", "String", "int", "float", "double", "if", "else", "for", "while", "return", "System", "out", "println"];
 
     lines.forEach((line, index) => {
         const trimmed = line.trim();
@@ -44,44 +44,28 @@ const lexicalScan = (sourceCode: string) => {
         if (!trimmed || trimmed.startsWith("//") || trimmed.startsWith("/*")) return;
 
         // 0. ENTRY POINT CHECK (Priority)
-        const isMainLine = trimmed.includes("main") || trimmed.includes("man") || trimmed.includes("mian");
-        if (isMainLine) {
-            if (trimmed.includes("man") && !trimmed.includes("main")) errors.push(`Entry Point Error on Line ${lineNum}: Typo 'man' detected. Did you mean 'int main()'?`);
-            if (trimmed.includes("mian") && !trimmed.includes("main")) errors.push(`Entry Point Error on Line ${lineNum}: Typo 'mian' detected. Did you mean 'int main()'?`);
-            if (trimmed.includes("void main")) warnings.push(`Standard Compliance on Line ${lineNum}: 'void main()' is not standard C. Use 'int main()'.`);
-        }
+        const isMainLine = trimmed.includes("public static void main");
+        if (trimmed.includes("class Main") && !trimmed.includes("public")) errors.push(`Line ${lineNum}: Class 'Main' should be public.`);
 
-        // Check for Typos in Keywords (Prioritize over missing semicolon)
+        // Check for Typos in Keywords
         let hasTypo = false;
-        if (trimmed.includes("prinf") && !trimmed.includes("printf")) { errors.push(`Syntax Error on Line ${lineNum}: Typo 'prinf' detected. Did you mean 'printf'?`); hasTypo = true; }
-        if (trimmed.includes("scnaf") && !trimmed.includes("scanf")) { errors.push(`Syntax Error on Line ${lineNum}: Typo 'scnaf' detected. Did you mean 'scanf'?`); hasTypo = true; }
-        if (trimmed.includes("itn ") && !trimmed.includes("int ")) { errors.push(`Syntax Error on Line ${lineNum}: Typo 'itn' detected. Did you mean 'int'?`); hasTypo = true; }
-        if (trimmed.includes("retun ") && !trimmed.includes("return ")) { errors.push(`Syntax Error on Line ${lineNum}: Typo 'retun' detected. Did you mean 'return'?`); hasTypo = true; }
-        if (trimmed.includes("<stdio>") && !trimmed.includes("<stdio.h>")) { errors.push(`Syntax Error on Line ${lineNum}: Missing '.h' in <stdio.h>`); hasTypo = true; }
+        if (trimmed.includes("sytem") || trimmed.includes("Sytem")) { errors.push(`Syntax Error on Line ${lineNum}: Typo in 'System'.`); hasTypo = true; }
+        if (trimmed.includes("printl ") && !trimmed.includes("println")) { errors.push(`Syntax Error on Line ${lineNum}: Typo 'printl' detected.`); hasTypo = true; }
 
         // Check for Missing Semicolon
-        // Rule: Assignments, Declarations, Function Calls, Return statements must end with ';'
-        // Exclude: Control structures (if, for, while, switch), Macros (#include), and ending braces '}'
-        // CRITICAL: Do NOT report missing semicolon if we already found a typo on this line.
         const needsSemicolon = !hasTypo &&
-            (trimmed.includes("=") || trimmed.startsWith("return") || trimmed.includes("printf") || trimmed.includes("scanf") ||
-                (keywords.some(k => trimmed.startsWith(k + " ")) && !trimmed.startsWith("struct")))
+            (trimmed.includes("=") || trimmed.startsWith("return") || trimmed.includes("System.out") || trimmed.includes("int ") || trimmed.includes("String "))
             && !trimmed.endsWith(";")
             && !trimmed.endsWith("{")
             && !trimmed.endsWith("}")
-            && !trimmed.startsWith("#")
             && !trimmed.startsWith("if")
             && !trimmed.startsWith("for")
             && !trimmed.startsWith("while")
-            && !trimmed.startsWith("switch")
-            && !trimmed.startsWith("case")
-            && !trimmed.startsWith("default");
+            && !trimmed.startsWith("public class")
+            && !trimmed.startsWith("public static void");
 
         if (needsSemicolon) {
-            // Second Check: Does it look like a typo-ed main function? e.g. "int man()"
-            if (!isMainLine) {
-                errors.push(`Missing Semicolon Error on Line ${lineNum}: Statements must end with ';'`);
-            }
+            errors.push(`Missing Semicolon Error on Line ${lineNum}: Statements must end with ';'`);
         }
 
         // Balance Checking
@@ -226,10 +210,10 @@ const Index = () => {
         toast.loading("Compiling code...");
 
         try {
-            const { runCCompilerSimulation } = await import("@/utils/compiler");
+            const { runJavaCompilerSimulation } = await import("@/utils/compiler");
             const { trackCompilation } = await import("@/utils/mistakeTracker");
 
-            const result = await runCCompilerSimulation(code, currentInputs);
+            const result = await runJavaCompilerSimulation(code, currentInputs);
 
             // Update Output State
             setOutput(result.output);  // Error analysis for AI tab
@@ -671,7 +655,7 @@ If issues found, return: { "status": "ERROR", "topic": "Logic Error", "summary":
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "program.c";
+        a.download = "Main.java";
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -689,7 +673,7 @@ If issues found, return: { "status": "ERROR", "topic": "Logic Error", "summary":
                             <div className="flex items-center gap-2">
                                 <Code2 className="h-6 w-6 text-primary" />
                                 <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                                    C Compiler Studio
+                                    Java Compiler Studio
                                 </h1>
                             </div>
                             <span className="text-xs text-muted-foreground hidden sm:block">
