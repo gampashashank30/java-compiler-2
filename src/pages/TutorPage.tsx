@@ -191,7 +191,7 @@ const TutorPage = () => {
     // Phase 5: Move to code implementation
     const handleContinueToCode = () => {
         setPhase('code');
-        toast.success('Now implement your solution in C!');
+        toast.success('Now implement your solution in Java!');
     };
 
     // Phase 6: Evaluate code
@@ -245,7 +245,7 @@ ${session.codeSubmission}
 
 Student Question: "${question}"
 
-Answer as a supportive C programming tutor.
+Answer as a supportive Java programming tutor.
 - Be concise (2-3 sentences max).
 - Focus on the specific question.
 - If asking about optimization (e.g. "why 6/10?"), explain the trade-offs gently but re-affirm their success.
@@ -327,7 +327,7 @@ Answer as a supportive C programming tutor.
                                         </h2>
 
                                         <p className="text-lg text-foreground/90 mb-6 leading-relaxed">
-                                            I'll help you master C programming concepts through 4 phases:
+                                            I'll help you master Java programming concepts through 4 phases:
                                         </p>
 
                                         <div className="grid gap-3 mb-6">

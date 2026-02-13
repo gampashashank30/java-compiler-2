@@ -58,10 +58,15 @@ const lexicalScan = (sourceCode: string) => {
             && !trimmed.endsWith(";")
             && !trimmed.endsWith("{")
             && !trimmed.endsWith("}")
+            && !trimmed.endsWith(")")
             && !trimmed.startsWith("if")
             && !trimmed.startsWith("for")
             && !trimmed.startsWith("while")
             && !trimmed.startsWith("public class")
+            && !trimmed.startsWith("package")
+            && !trimmed.startsWith("import")
+            && !trimmed.startsWith("//")
+            && !trimmed.startsWith("@") // Annotations
             && !trimmed.startsWith("public static void");
 
         if (needsSemicolon) {
@@ -219,7 +224,7 @@ const Index = () => {
             setOutput(result.output);  // Error analysis for AI tab
             setProgramOutput(result.programOutput || result.output);  // Actual execution output for console
             setExitCode(result.exitCode);
-            setOutputType(result.outputType);
+            setOutputType(result.outputType as "success" | "error" | "info" | "warning");
 
             // Debug logging to diagnose console output issues
             console.log('🔍 Program Output Debug:', {
@@ -231,22 +236,8 @@ const Index = () => {
             });
 
             // Handle Foreign Language Detection
-            if (result.isForeignLanguage && result.detectedLanguage) {
-                setDetectedLanguage(result.detectedLanguage);
-                setIsRunning(false); // Stop loading state
-                toast.dismiss(); // Dismiss "Compiling..." toast
-                toast.error(`Detected ${result.detectedLanguage} code`, {
-                    description: "Click 'Auto Fix' button to convert to C.",
-                    action: {
-                        label: "Fix Code",
-                        onClick: () => handleAutoConvert(result.detectedLanguage!)
-                    },
-                    duration: 10000,
-                });
-                return; // Stop further AI analysis if it's not C
-            } else {
-                setDetectedLanguage(null);
-            }
+            // REMOVED: We are now a Java-only env, and the simulator returns 'java' as detected.
+            setDetectedLanguage("java");
 
             // STRICT ERROR HANDLING & ENTRY POINT CHECK
             const scanResult = lexicalScan(code);
@@ -263,7 +254,7 @@ const Index = () => {
                     message: "Entry Point Error",
                     summary: "The main function is misspelled.",
                     explanation: "The compiler cannot run your code because it can't find 'main'. You typed '" + (entryPointError.includes("man") ? "man" : "mian") + "'.",
-                    corrected_code: code.replace(/int (man|mian)\(\)/, "int main()"),
+                    corrected_code: code.replace(/void (man|mian)\(/, "void main("),
                     confidence: 1.0
                 });
                 setShowAIExplanation(true);
@@ -397,7 +388,7 @@ const Index = () => {
 
                 if (analysisType === 'error') {
                     // ERROR SCENARIO: Analyze compilation error
-                    systemPrompt = "You are a C compiler error explanation expert. Provide clear, concise analysis. Return JSON only.";
+                    systemPrompt = "You are a Java compiler error explanation expert. Provide clear, concise analysis. Return JSON only.";
                     prompt = `Compilation error detected:
 ${analysisInput}
 
@@ -413,7 +404,7 @@ Return JSON: { "status": "ERROR", "topic": "Error Type", "summary": "Brief expla
 
                 } else if (analysisType === 'warning') {
                     // WARNING SCENARIO: Explain why warning is dangerous
-                    systemPrompt = "You are a C compiler warning expert. Explain dangers and fixes clearly. Return JSON only.";
+                    systemPrompt = "You are a Java compiler warning expert. Explain dangers and fixes clearly. Return JSON only.";
                     prompt = `Compiler warning detected:
 ${analysisInput}
 
@@ -429,7 +420,7 @@ Return JSON: { "status": "ERROR", "topic": "Warning Type", "summary": "What this
 
                 } else {
                     // SUCCESS SCENARIO: Analyze for logical errors
-                    systemPrompt = "You are a C code quality analyzer. Check for logical errors, bugs, and edge cases. Return JSON only.";
+                    systemPrompt = "You are a Java code quality analyzer. Check for logical errors, bugs, and edge cases. Return JSON only.";
                     prompt = `Code compiled successfully. Analyze for logical errors or bugs:
 
 Code:
@@ -619,8 +610,8 @@ If issues found, return: { "status": "ERROR", "topic": "Logic Error", "summary":
         toast.loading(`Converting from ${sourceLang} to C...`);
 
         try {
-            const { convertToC } = await import("@/utils/compiler");
-            const convertedCode = await convertToC(code, sourceLang);
+            const { convertToJava } = await import("@/utils/compiler");
+            const convertedCode = await convertToJava(code, sourceLang);
 
             // Calculate Highlighted Lines (Green) - Simple diff: All new lines are "fixed"
             // Ideally we could diff properly, but for conversion entire file changes basically.
@@ -634,7 +625,7 @@ If issues found, return: { "status": "ERROR", "topic": "Logic Error", "summary":
             setErrorLines([]); // Clear errors
 
             toast.dismiss();
-            toast.success("Converted to C Successfully!", {
+            toast.success("Converted to Java Successfully!", {
                 description: "Changed lines are highlighted in green."
             });
 
@@ -651,7 +642,7 @@ If issues found, return: { "status": "ERROR", "topic": "Logic Error", "summary":
     };
 
     const handleDownload = () => {
-        const blob = new Blob([code], { type: "text/x-csrc" });
+        const blob = new Blob([code], { type: "text/x-java-source" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -761,7 +752,7 @@ If issues found, return: { "status": "ERROR", "topic": "Logic Error", "summary":
                                         </svg>
                                         Detected {detectedLanguage} code
                                     </div>
-                                    <p className="text-xs text-gray-400">This compiler only supports C.</p>
+                                    <p className="text-xs text-gray-400">This compiler only supports Java.</p>
                                     <Button
                                         onClick={() => handleAutoConvert(detectedLanguage)}
                                         disabled={isTranslating}

@@ -22,7 +22,7 @@ export const CodeView: React.FC<Props> = ({ currentCode, onCodeChange, onSubmit,
             <Textarea
                 value={currentCode}
                 onChange={(e) => onCodeChange(e.target.value)}
-                placeholder="Write your C code..."
+                placeholder="Write your Java code..."
                 className="font-mono"
             />
             <Button onClick={onSubmit} disabled={isEvaluating}>Evaluate Code</Button>

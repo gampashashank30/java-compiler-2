@@ -152,7 +152,7 @@ const AIAsk = () => {
 
       const codeSizeInstructions = {
         small: "10-20 lines max. Use beginner-friendly syntax with HEAVY inline comments (every 2-3 lines). Descriptive variable names. Simple logic, no tricks. Example: for(int i=0; i<n; i++) // Loop through each element",
-        medium: "25-40 lines. Standard C implementation with moderate comments on key sections. Clean variable names. Standard algorithms without advanced optimizations.",
+        medium: "25-40 lines. Standard Java implementation with moderate comments on key sections. Clean variable names. Standard algorithms without advanced optimizations.",
         big: "50-80 lines. Comprehensive solution with detailed function-level comments. Include error handling and edge cases. Add educational comments explaining 'why' not just 'what'. Helper functions for clarity."
       };
 
@@ -195,8 +195,8 @@ JSON Structure:
     {"title": "name", "type": "article/video", "url": "placeholder"}
   ] (max 3)${provideFullSolution ? `,
   "solution": {
-    "code": "C code following size rules above",
-    "language": "c",
+    "code": "Java code following size rules above. MUST be a full class with main method.",
+    "language": "java",
     "explanation": "brief explanation"
   }` : ''}
 }`;
@@ -458,10 +458,10 @@ JSON Structure:
                               <div
                                 key={oIdx}
                                 className={`flex items-center space-x-2 p-3 rounded-md border transition-colors ${showFeedback
-                                    ? isCorrect
-                                      ? 'bg-green-50 dark:bg-green-900/20 border-green-500'
-                                      : 'bg-red-50 dark:bg-red-900/20 border-red-500'
-                                    : 'border-border hover:bg-accent'
+                                  ? isCorrect
+                                    ? 'bg-green-50 dark:bg-green-900/20 border-green-500'
+                                    : 'bg-red-50 dark:bg-red-900/20 border-red-500'
+                                  : 'border-border hover:bg-accent'
                                   }`}
                               >
                                 <RadioGroupItem value={oIdx.toString()} id={`q${qIdx}-${oIdx}`} />
