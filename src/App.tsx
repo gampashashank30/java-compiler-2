@@ -5,15 +5,15 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // Pages
-import Index from "./pages/Index";
-import AIAsk from "./pages/AIAsk";
-import Settings from "./pages/Settings";
-import LandingPage from "./pages/LandingPage";
-import TutorPage from "./pages/TutorPage";
+import Index from "@/pages/Index";
+import AIAsk from "@/pages/AIAsk";
+import Settings from "@/pages/Settings";
+import LandingPage from "@/pages/LandingPage";
+import TutorPage from "@/pages/TutorPage";
 
 const queryClient = new QueryClient();
 
-import { ThemeProvider } from "./components/ThemeContext";
+import { ThemeProvider } from "@/components/ThemeContext";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
